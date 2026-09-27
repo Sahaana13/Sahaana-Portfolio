@@ -29,7 +29,7 @@ const socialIcon = (label: string) => (label === "LinkedIn" ? Linkedin : label =
 function Section({ id, eyebrow, title, children }: { id: string; eyebrow: string; title: string; children: ReactNode }) {
   const reduced = useReducedMotion();
   return (
-    <motion.section id={id} className="section-shell scroll-mt-24" style={{ perspective: 1200 }} initial={reduced ? false : "hidden"} whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={reveals[id] ?? reveals["default"]} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
+    <motion.section id={id} className="section-shell scroll-mt-24" style={{ perspective: 1200 }} initial={reduced ? false : "hidden"} whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={(reveals[id] ?? reveals["default"])!} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
       <div className="section-heading"><span>{eyebrow}</span><h2>{title}</h2></div>
       {children}
     </motion.section>
@@ -193,7 +193,7 @@ export function Portfolio() {
         </Section>
 
         <Section id="coding" eyebrow="05 / Coding Profiles" title="Practice, progress, repeat.">
-          {codingProfiles.length ? <div className="profiles-grid">{codingProfiles.map((p, i) => <motion.a animate={reduced ? undefined : { y: [0, -6, 0] }} transition={{ duration: 4, repeat: Infinity, delay: i * 0.4 }} href={p.url} target="_blank" rel="noreferrer" className="profile-card interactive-card" key={p.platform}><div><Code2 /><ExternalLink size={16} /></div><h3>{p.platform}</h3><b>{p.username}</b><p>Visit Profile →</p></motion.a>)}</div>
+          {codingProfiles.length ? <div className="profiles-grid">{codingProfiles.map((p, i) => <motion.a animate={reduced ? {} : { y: [0, -6, 0] }} transition={{ duration: 4, repeat: Infinity, delay: i * 0.4 }} href={p.url} target="_blank" rel="noreferrer" className="profile-card interactive-card" key={p.platform}><div><Code2 /><ExternalLink size={16} /></div><h3>{p.platform}</h3><b>{p.username}</b><p>Visit Profile →</p></motion.a>)}</div>
             : <p className="empty-note">Coding profiles will appear here once they’re added.</p>}
         </Section>
 
