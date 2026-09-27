@@ -1,58 +1,41 @@
+// Central personal info. Replace any value in [BRACKETS] with your real details.
 export const profile = {
-  name: "[YOUR NAME]",
-  initials: "YN",
+  name: "Sahaana M",
+  initials: "SM",
   email: "[YOUR EMAIL]",
-  phone: "[YOUR PHONE]",
-  title: "Computer Science Engineering Student | Software Developer | Frontend Developer",
-  intro:
-    "I explore software through thoughtful interfaces, practical projects, and persistent problem solving—turning ideas into reliable digital experiences.",
+  title: "Computer Science Engineering Student",
+  roles: "Java Full Stack Developer | Salesforce Developer",
+  headline: "Computer Science Engineering Student | Java Full Stack Developer | Salesforce Developer",
+  tagline: "Building practical applications with Java, modern frontend technologies, SQL, and Salesforce CRM concepts.",
   about:
-    "I’m a Computer Science Engineering student building a strong foundation in programming, frontend development, databases, and analytical thinking. I enjoy learning by making useful products and improving them one detail at a time.",
-  focus: "Currently learning scalable React patterns, data structures, and modern software engineering workflows.",
+    "I am a Computer Science Engineering student focused on Java Full Stack Development and Salesforce Development. I have knowledge of Java, HTML, CSS, JavaScript, React.js, SQL, Excel, Git, and Salesforce CRM concepts.",
+  focus: "I enjoy building practical applications, exploring new technologies, and continuously improving my development skills.",
   location: "[YOUR LOCATION]",
   resume: "/assets/resume.pdf",
-  stats: [
-    { value: "[X]+", label: "Projects" },
-    { value: "[X]+", label: "Technologies" },
-    { value: "[X]+", label: "Problems solved" },
-    { value: "[X.XX]", label: "CGPA" },
-  ],
 };
 
-export const skills = [
-  { category: "Programming", items: [["Java", "Object-oriented problem solving", "Comfortable"], ["Python", "Scripting and data workflows", "Intermediate"], ["JavaScript", "Modern web programming", "Comfortable"]] },
-  { category: "Frontend", items: [["HTML", "Semantic, accessible structure", "Comfortable"], ["CSS", "Responsive interfaces and motion", "Comfortable"], ["React", "Reusable component systems", "Intermediate"]] },
-  { category: "Database", items: [["SQL", "Queries and relational thinking", "Intermediate"], ["MySQL", "Schema and data management", "Familiar"]] },
-  { category: "Data / Analytics", items: [["Python", "Data preparation and analysis", "Intermediate"], ["Excel", "Analysis and reporting", "Familiar"], ["Analytics tools", "Exploring data-driven insights", "Currently Learning"]] },
-  { category: "Tools", items: [["Git", "Version control workflows", "Intermediate"], ["GitHub", "Collaboration and project hosting", "Comfortable"], ["VS Code", "Daily development environment", "Comfortable"]] },
+/** A value counts as "provided" once its [PLACEHOLDER] brackets are replaced. */
+export const isProvided = (value?: string) => Boolean(value && !value.includes("[") && value !== "mailto:");
+
+export const careerFocus = [
+  { title: "Java Full Stack Developer", tone: "cyan", summary: "Building end-to-end web applications with Java, modern frontend tools, and relational databases.", items: ["Java", "HTML", "CSS", "JavaScript", "React.js", "SQL", "Git"] },
+  { title: "Salesforce Developer", tone: "violet", summary: "Working with Salesforce CRM concepts, automation, reporting, and access control.", items: ["Salesforce CRM", "Flow Builder", "Reports and Dashboards", "Role-Based Access"] },
 ] as const;
 
-export const projects = [
-  { title: "[PROJECT TITLE 01]", description: "Add a concise explanation of the problem, your approach, and the result.", technologies: ["React", "JavaScript", "CSS"], image: "01", github: "[GITHUB PROJECT URL]", demo: "[LIVE DEMO URL]", category: "Web Development" },
-  { title: "[PROJECT TITLE 02]", description: "Describe the most important functionality and the technical decisions behind it.", technologies: ["Java", "SQL"], image: "02", github: "[GITHUB PROJECT URL]", demo: "[LIVE DEMO URL]", category: "Java" },
-  { title: "[PROJECT TITLE 03]", description: "Explain the dataset, analytical workflow, and useful insight produced by this project.", technologies: ["Python", "Excel"], image: "03", github: "[GITHUB PROJECT URL]", demo: "[LIVE DEMO URL]", category: "Data Analytics" },
+export const aboutCards = [
+  { title: "Education", text: "Computer Science Engineering student building strong programming and problem-solving foundations." },
+  { title: "Java Full Stack", text: "Java programming, SQL databases, Git, and practical full stack project development." },
+  { title: "Salesforce", text: "Salesforce CRM, Flow Builder, reports, dashboards, and role-based access concepts." },
+  { title: "Frontend Development", text: "HTML, CSS, JavaScript, and React.js for clean, responsive interfaces." },
 ] as const;
 
-export const articles = [
-  { title: "[ARTICLE TITLE 01]", description: "A short summary of the article and the practical idea readers will take away.", date: "[DATE]", readingTime: "[X] min read", category: "Development", url: "[ARTICLE URL]" },
-  { title: "[ARTICLE TITLE 02]", description: "Add a clear description of the problem, lesson, or technology explored here.", date: "[DATE]", readingTime: "[X] min read", category: "Computer Science", url: "[ARTICLE URL]" },
-  { title: "[ARTICLE TITLE 03]", description: "Share an approachable overview of the concepts covered in this piece.", date: "[DATE]", readingTime: "[X] min read", category: "Learning", url: "[ARTICLE URL]" },
+export const navItems = [
+  { label: "Home", id: "home" },
+  { label: "About", id: "about" },
+  { label: "Skills", id: "skills" },
+  { label: "Projects", id: "projects" },
+  { label: "Articles", id: "articles" },
+  { label: "Coding Profiles", id: "coding" },
+  { label: "Resume", id: "resume" },
+  { label: "Contact", id: "contact" },
 ] as const;
-
-export const codingProfiles = [
-  { platform: "GitHub", username: "[GITHUB USERNAME]", description: "Projects, experiments, and open-source work.", url: "[GITHUB URL]" },
-  { platform: "LeetCode", username: "[LEETCODE USERNAME]", description: "Data structures and algorithm practice.", url: "[LEETCODE URL]" },
-  { platform: "HackerRank", username: "[HACKERRANK USERNAME]", description: "Programming challenges and verified skills.", url: "[HACKERRANK URL]" },
-  { platform: "CodeChef", username: "[CODECHEF USERNAME]", description: "Competitive programming practice.", url: "[CODECHEF URL]" },
-  { platform: "GeeksforGeeks", username: "[GFG USERNAME]", description: "Problem solving and technical learning.", url: "[GEEKSFORGEEKS URL]" },
-].filter((item) => Boolean(item.url));
-
-export const socialLinks = [
-  { label: "LinkedIn", url: "[LINKEDIN URL]" },
-  { label: "GitHub", url: "[GITHUB URL]" },
-  { label: "LeetCode", url: "[LEETCODE URL]" },
-  { label: "HackerRank", url: "[HACKERRANK URL]" },
-  { label: "Email", url: "mailto:[YOUR EMAIL]" },
-];
-
-export const navItems = ["Home", "About", "Skills", "Projects", "Articles", "Coding", "Resume", "Contact"] as const;

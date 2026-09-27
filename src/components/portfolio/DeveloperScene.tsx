@@ -1,62 +1,97 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Float, Lightformer, RoundedBox } from "@react-three/drei";
-import { Suspense, useRef } from "react";
+import { Environment, Float, Html, Lightformer, RoundedBox } from "@react-three/drei";
+import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 
-const sceneColors = { cyan: "#57e7f2", violet: "#9874ff", magenta: "#ec59cd", dark: "#070912" };
+const c = { cyan: "#57e7f2", violet: "#9874ff", magenta: "#ec59cd", blue: "#4f8cff", dark: "#070912" };
+const javaTags = ["Java", "React", "JavaScript", "HTML", "CSS", "SQL", "Git"];
+const sfTags = ["Salesforce CRM", "Flow Builder", "Reports & Dashboards"];
 
-function Rig() {
+function Tag({ label, position, color }: { label: string; position: [number, number, number]; color: string }) {
+  return (
+    <Float speed={1.4} rotationIntensity={0} floatIntensity={0.6}>
+      <Html position={position} center distanceFactor={8} zIndexRange={[5, 0]}>
+        <span className="scene-tag" style={{ borderColor: color, color }}>{label}</span>
+      </Html>
+    </Float>
+  );
+}
+
+function Rig({ mobile }: { mobile: boolean }) {
   const group = useRef<THREE.Group>(null);
+  const cloud = useRef<THREE.Group>(null);
   const { pointer } = useThree();
-  useFrame((_, rawDelta) => {
-    const dt = Math.min(rawDelta, 0.05);
-    if (!group.current) return;
-    group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, pointer.x * 0.22, 4, dt);
-    group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, -pointer.y * 0.12, 4, dt);
+  const java = mobile ? javaTags.slice(0, 3) : javaTags;
+  const sf = mobile ? sfTags.slice(0, 2) : sfTags;
+  useFrame((state, raw) => {
+    const dt = Math.min(raw, 0.05);
+    if (group.current) {
+      group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, pointer.x * 0.25, 4, dt);
+      group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, -pointer.y * 0.12, 4, dt);
+    }
+    if (cloud.current) cloud.current.rotation.y = state.clock.elapsedTime * 0.25;
   });
   return (
-    <group ref={group} rotation={[-0.08, -0.25, 0.04]}>
-      <Float speed={1.25} rotationIntensity={0.18} floatIntensity={0.45}>
-        <RoundedBox args={[3.8, 2.35, 0.15]} radius={0.08} position={[0, 0.65, 0]} castShadow>
-          <meshStandardMaterial color={sceneColors.dark} metalness={0.7} roughness={0.25} />
-        </RoundedBox>
-        <mesh position={[0, 0.65, 0.085]}>
-          <planeGeometry args={[3.45, 2.02]} />
-          <meshStandardMaterial color={sceneColors.cyan} emissive={sceneColors.cyan} emissiveIntensity={0.2} />
-        </mesh>
-        {[0.36, 0, -0.36].map((y, index) => (
-          <mesh key={y} position={[-0.52 + index * 0.22, 0.65 + y, 0.1]}>
-            <boxGeometry args={[1.65 - index * 0.22, 0.055, 0.025]} />
-            <meshBasicMaterial color={index === 1 ? sceneColors.magenta : sceneColors.dark} />
+    <group ref={group}>
+      {/* Java Full Stack: laptop */}
+      <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.4}>
+        <group position={[-1.1, 0, 0]} rotation={[-0.05, 0.35, 0]} scale={0.8}>
+          <RoundedBox args={[3.4, 2.1, 0.14]} radius={0.08} position={[0, 0.65, 0]}>
+            <meshStandardMaterial color={c.dark} metalness={0.7} roughness={0.25} />
+          </RoundedBox>
+          <mesh position={[0, 0.65, 0.08]}>
+            <planeGeometry args={[3.1, 1.8]} />
+            <meshStandardMaterial color={c.cyan} emissive={c.cyan} emissiveIntensity={0.18} />
           </mesh>
-        ))}
-        <RoundedBox args={[4.25, 0.15, 2.25]} radius={0.08} position={[0, -0.63, 0.92]} rotation={[-0.24, 0, 0]} castShadow>
-          <meshStandardMaterial color={sceneColors.dark} metalness={0.85} roughness={0.3} />
-        </RoundedBox>
+          {[0.36, 0.12, -0.12, -0.36].map((y, i) => (
+            <mesh key={y} position={[-0.5 + (i % 2) * 0.2, 0.65 + y, 0.1]}>
+              <boxGeometry args={[1.5 - i * 0.18, 0.05, 0.02]} />
+              <meshBasicMaterial color={i === 1 ? c.magenta : c.dark} />
+            </mesh>
+          ))}
+          <RoundedBox args={[3.8, 0.14, 2]} radius={0.07} position={[0, -0.55, 0.85]} rotation={[-0.24, 0, 0]}>
+            <meshStandardMaterial color={c.dark} metalness={0.85} roughness={0.3} />
+          </RoundedBox>
+        </group>
       </Float>
-      {[[2.6, 1.8, -0.7], [-2.45, 0.8, 0.4], [2.4, -1.25, 0.8]].map((position, index) => (
-        <Float key={index} speed={1 + index * 0.2} rotationIntensity={0.8} floatIntensity={0.65}>
-          <mesh position={position as [number, number, number]}>
-            {index === 0 ? <icosahedronGeometry args={[0.36, 0]} /> : index === 1 ? <torusGeometry args={[0.36, 0.1, 12, 28]} /> : <octahedronGeometry args={[0.42, 0]} />}
-            <meshStandardMaterial color={index === 1 ? sceneColors.magenta : sceneColors.violet} emissive={index === 1 ? sceneColors.magenta : sceneColors.violet} emissiveIntensity={0.4} wireframe={index === 2} />
+      {/* Salesforce: glowing cloud */}
+      <Float speed={1} rotationIntensity={0.2} floatIntensity={0.7}>
+        <group ref={cloud} position={[2.1, 1.1, -0.4]} scale={0.75}>
+          {[[0, 0, 0, 0.62], [-0.6, -0.15, 0, 0.45], [0.6, -0.12, 0, 0.5], [0.2, 0.35, 0, 0.45]].map(([x, y, z, r], i) => (
+            <mesh key={i} position={[x!, y!, z!]}>
+              <sphereGeometry args={[r!, mobile ? 16 : 28, mobile ? 16 : 28]} />
+              <meshStandardMaterial color={c.blue} emissive={c.violet} emissiveIntensity={0.45} metalness={0.2} roughness={0.35} transparent opacity={0.9} />
+            </mesh>
+          ))}
+        </group>
+      </Float>
+      {!mobile && (
+        <Float speed={1.3} rotationIntensity={0.8} floatIntensity={0.6}>
+          <mesh position={[2.3, -1.3, 0.6]}>
+            <octahedronGeometry args={[0.38, 0]} />
+            <meshStandardMaterial color={c.violet} emissive={c.violet} emissiveIntensity={0.4} wireframe />
           </mesh>
         </Float>
-      ))}
+      )}
+      {java.map((t, i) => {
+        const a = (i / java.length) * Math.PI * 1.2 + Math.PI * 0.6;
+        return <Tag key={t} label={t} color={c.cyan} position={[-1.1 + Math.cos(a) * 2.3, Math.sin(a) * 1.6 + 0.3, 0.6]} />;
+      })}
+      {sf.map((t, i) => <Tag key={t} label={t} color={c.violet} position={[2.3, 0.15 - i * 0.55, 0.8]} />)}
     </group>
   );
 }
 
 export function DeveloperScene() {
+  const mobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
   return (
-    <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0.3, 7.5], fov: 45 }} gl={{ antialias: true, alpha: true }}>
+    <Canvas dpr={mobile ? [1, 1.25] : [1, 1.5]} camera={{ position: [0, 0.3, 7.5], fov: 45 }} gl={{ antialias: !mobile, alpha: true }}>
       <ambientLight intensity={0.7} />
-      <pointLight position={[4, 4, 5]} intensity={18} color={sceneColors.cyan} />
-      <pointLight position={[-4, -1, 3]} intensity={12} color={sceneColors.magenta} />
+      <pointLight position={[4, 4, 5]} intensity={18} color={c.cyan} />
+      <pointLight position={[-4, -1, 3]} intensity={12} color={c.magenta} />
       <Suspense fallback={null}>
-        <Rig />
-        <Environment>
-          <Lightformer intensity={2} position={[0, 5, 2]} scale={[8, 8, 1]} />
-        </Environment>
+        <Rig mobile={mobile} />
+        <Environment><Lightformer intensity={2} position={[0, 5, 2]} scale={[8, 8, 1]} /></Environment>
       </Suspense>
     </Canvas>
   );
