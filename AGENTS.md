@@ -1,10 +1,5 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
+# Architecture decisions
+
+- Keep the portfolio as one client-rendered index route because the requested experience uses smooth in-page navigation and browser-only 3D rendering.
+- Store all editable personal, project, article, skill, coding-profile, and social content in a central data module so placeholders are easy to replace.
+- Use a procedural React Three Fiber hero scene and DOM-based controls/content to balance visual depth, accessibility, and performance.
