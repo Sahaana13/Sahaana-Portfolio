@@ -1,14 +1,23 @@
-import { useEffect, useMemo, useState } from "react";
-import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { useMemo } from "react";
+import Particles, { ParticlesProvider, useParticlesProvider } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
-import type { ISourceOptions } from "@tsparticles/engine";
+import type { Engine, ISourceOptions } from "@tsparticles/engine";
+
+const initEngine = async (engine: Engine) => {
+  await loadSlim(engine);
+};
 
 export function ParticleBackground() {
-  const [ready, setReady] = useState(false);
+  return (
+    <ParticlesProvider init={initEngine}>
+      <ParticleLayer />
+    </ParticlesProvider>
+  );
+}
 
-  useEffect(() => {
-    void initParticlesEngine(async (engine) => loadSlim(engine)).then(() => setReady(true));
-  }, []);
+function ParticleLayer() {
+  const { loaded: ready } = useParticlesProvider();
+
 
   const options = useMemo<ISourceOptions>(() => ({
     fullScreen: { enable: false },
