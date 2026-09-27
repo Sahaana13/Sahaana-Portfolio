@@ -1,31 +1,63 @@
-import { lazy, Suspense, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "motion/react";
-import { ArrowDown, ArrowRight, Code2, Database, Download, ExternalLink, FileText, Github, GraduationCap, Mail, Menu, Send, Sparkles, Terminal, X } from "lucide-react";
+import { lazy, Suspense, useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, type Variants } from "motion/react";
+import { ArrowDown, ArrowRight, ArrowUp, BarChart3, Check, Cloud, Code2, Database, Download, ExternalLink, FileText, GitBranch, Github, GraduationCap, Layout, Linkedin, Mail, Menu, Send, ShieldCheck, Terminal, Workflow, X } from "lucide-react";
 import { Button } from "./PortfolioButton";
-import { articles, codingProfiles, navItems, profile, projects, skills, socialLinks } from "@/data/portfolio";
+import { CustomCursor } from "./CustomCursor";
+import { aboutCards, careerFocus, isProvided, navItems, profile } from "@/data/portfolio";
+import { salesforceSkills, skillGroups } from "@/data/skills";
+import { projectCategories, projects } from "@/data/projects";
+import { allArticlesUrl, articles } from "@/data/articles";
+import { codingProfiles } from "@/data/codingProfiles";
+import { socialLinks } from "@/data/socialLinks";
 
-const DeveloperScene = lazy(() => import("./DeveloperScene").then((module) => ({ default: module.DeveloperScene })));
-const ParticleBackground = lazy(() => import("./ParticleBackground").then((module) => ({ default: module.ParticleBackground })));
+const DeveloperScene = lazy(() => import("./DeveloperScene").then((m) => ({ default: m.DeveloperScene })));
+const ParticleBackground = lazy(() => import("./ParticleBackground").then((m) => ({ default: m.ParticleBackground })));
 
-const fade = { hidden: { opacity: 0, y: 30, filter: "blur(8px)" }, visible: { opacity: 1, y: 0, filter: "blur(0px)" } };
-const iconMap = [Code2, Terminal, Database, Sparkles];
+const reveals: Record<string, Variants> = {
+  about: { hidden: { opacity: 0, x: -40, filter: "blur(10px)" }, visible: { opacity: 1, x: 0, filter: "blur(0px)" } },
+  projects: { hidden: { opacity: 0, rotateX: 12, y: 40 }, visible: { opacity: 1, rotateX: 0, y: 0 } },
+  resume: { hidden: { opacity: 0, scale: 0.94 }, visible: { opacity: 1, scale: 1 } },
+  contact: { hidden: { opacity: 0, clipPath: "inset(10% 10% 10% 10% round 24px)" }, visible: { opacity: 1, clipPath: "inset(0% 0% 0% 0% round 0px)" } },
+  default: { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.08 } } },
+};
+const item: Variants = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } };
+const aboutIcons = [GraduationCap, Terminal, Cloud, Layout];
+const sfIcons = [Cloud, Workflow, BarChart3, ShieldCheck];
+const catIcons: Record<string, typeof Code2> = { Programming: Code2, Frontend: Layout, Database, "Version Control": GitBranch, Additional: BarChart3 };
+const socialIcon = (label: string) => (label === "LinkedIn" ? Linkedin : label === "GitHub" ? Github : label === "Email" ? Mail : Code2);
 
 function Section({ id, eyebrow, title, children }: { id: string; eyebrow: string; title: string; children: ReactNode }) {
   const reduced = useReducedMotion();
   return (
-    <motion.section id={id} className="section-shell scroll-mt-24" initial={reduced ? false : "hidden"} whileInView="visible" viewport={{ once: true, amount: 0.12 }} variants={fade} transition={{ duration: 0.7 }}>
+    <motion.section id={id} className="section-shell scroll-mt-24" style={{ perspective: 1200 }} initial={reduced ? false : "hidden"} whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={reveals[id] ?? reveals["default"]} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
       <div className="section-heading"><span>{eyebrow}</span><h2>{title}</h2></div>
       {children}
     </motion.section>
   );
 }
 
+function TiltCard({ className, children }: { className: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  const move = (e: MouseEvent<HTMLDivElement>) => {
+    if (reduced || !ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    ref.current.style.transform = `perspective(900px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateY(-4px)`;
+    ref.current.style.setProperty("--mx", `${(x + 0.5) * 100}%`);
+    ref.current.style.setProperty("--my", `${(y + 0.5) * 100}%`);
+  };
+  const leave = () => { if (ref.current) ref.current.style.transform = ""; };
+  return <motion.div variants={item} className={`tilt-card ${className}`}><div ref={ref} className="tilt-inner" onMouseMove={move} onMouseLeave={leave}>{children}</div></motion.div>;
+}
+
 function Navbar() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("home");
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && setActive(entry.target.id)), { rootMargin: "-35% 0px -55%" });
-    navItems.forEach((item) => { const node = document.getElementById(item.toLowerCase()); if (node) observer.observe(node); });
+    const observer = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)), { rootMargin: "-35% 0px -55%" });
+    navItems.forEach((n) => { const node = document.getElementById(n.id); if (node) observer.observe(node); });
     return () => observer.disconnect();
   }, []);
   return (
@@ -33,20 +65,27 @@ function Navbar() {
       <nav className="navbar" aria-label="Main navigation">
         <a href="#home" className="brand" aria-label="Go to home"><span>{profile.initials}</span><i /></a>
         <div className="desktop-nav">
-          {navItems.map((item) => <a key={item} className={active === item.toLowerCase() ? "active" : ""} href={`#${item.toLowerCase()}`}>{item}</a>)}
+          {navItems.map((n) => <a key={n.id} className={active === n.id ? "active" : ""} href={`#${n.id}`}>{n.label}{active === n.id && <motion.i layoutId="nav-underline" className="nav-underline" />}</a>)}
         </div>
-        <button className="menu-button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label="Toggle navigation">{open ? <X /> : <Menu />}</button>
+        <button className="menu-button" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-label="Toggle navigation">{open ? <X /> : <Menu />}</button>
       </nav>
-      <AnimatePresence>{open && <motion.div className="mobile-nav" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>{navItems.map((item) => <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setOpen(false)}>{item}<ArrowRight size={16} /></a>)}</motion.div>}</AnimatePresence>
+      <AnimatePresence>{open && <motion.div className="mobile-nav" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>{navItems.map((n, i) => <motion.a initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }} key={n.id} href={`#${n.id}`} onClick={() => setOpen(false)}>{n.label}<ArrowRight size={16} /></motion.a>)}</motion.div>}</AnimatePresence>
     </header>
   );
 }
 
-function ProjectCard({ project, index }: { project: (typeof projects)[number]; index: number }) {
+function ProjectCard({ project }: { project: (typeof projects)[number] }) {
+  const hasGit = isProvided(project.github);
+  const hasDemo = isProvided(project.demo);
   return (
-    <motion.article className="project-card interactive-card" layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} whileHover={{ y: -8, rotateX: 1.5, rotateY: index % 2 ? -1.5 : 1.5 }}>
-      <div className="project-visual"><span>{project.image}</span><div><Code2 /><p>{project.category}</p></div></div>
-      <div className="project-content"><p className="kicker">Featured build</p><h3>{project.title}</h3><p>{project.description}</p><div className="tags">{project.technologies.map((tech) => <span key={tech}>{tech}</span>)}</div><div className="card-actions"><a href={project.github} target="_blank" rel="noreferrer"><Github size={17} /> GitHub</a><a href={project.demo} target="_blank" rel="noreferrer">Live demo <ExternalLink size={16} /></a></div></div>
+    <motion.article className="project-card interactive-card" layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} whileHover={{ y: -8 }}>
+      <div className="project-visual" role="img" aria-label={`${project.title} preview placeholder`}><span>{project.image}</span><div>{project.category === "Salesforce" ? <Cloud /> : <Code2 />}<p>{project.category}</p></div></div>
+      <div className="project-content"><p className="kicker">{project.category}</p><h3>{project.title}</h3><p>{project.description}</p><div className="tags">{project.technologies.map((t) => <span key={t}>{t}</span>)}</div>
+        <div className="card-actions">
+          {hasGit ? <a href={project.github} target="_blank" rel="noreferrer"><Github size={17} /> GitHub</a> : <span className="muted-link">GitHub link coming soon</span>}
+          {hasDemo ? <a href={project.demo} target="_blank" rel="noreferrer">Live demo <ExternalLink size={16} /></a> : <span className="muted-link">Demo coming soon</span>}
+        </div>
+      </div>
     </motion.article>
   );
 }
@@ -57,87 +96,121 @@ function ContactForm() {
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const nextErrors: Record<string, string> = {};
-    ["name", "subject", "message"].forEach((key) => { if (!String(data.get(key) ?? "").trim()) nextErrors[key] = "This field is required"; });
+    const next: Record<string, string> = {};
+    ["name", "subject", "message"].forEach((k) => { if (!String(data.get(k) ?? "").trim()) next[k] = "This field is required"; });
     const email = String(data.get("email") ?? "");
-    if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors["email"] = "Enter a valid email";
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length) return;
+    if (!/^\S+@\S+\.\S+$/.test(email)) next["email"] = "Enter a valid email";
+    setErrors(next);
+    if (Object.keys(next).length) return;
     setStatus("sending");
     window.setTimeout(() => {
-      const subject = encodeURIComponent(String(data.get("subject")));
-      const body = encodeURIComponent(`From: ${data.get("name")} (${email})\n\n${data.get("message")}`);
-      window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
+      if (isProvided(profile.email)) {
+        const subject = encodeURIComponent(String(data.get("subject")));
+        const body = encodeURIComponent(`From: ${data.get("name")} (${email})\n\n${data.get("message")}`);
+        window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
+      }
       setStatus("sent");
-    }, 500);
+    }, 600);
   };
   return (
     <form className="contact-form" onSubmit={submit} noValidate>
-      {["name", "email", "subject"].map((field) => <label key={field}><span>{field}</span><input name={field} type={field === "email" ? "email" : "text"} placeholder={`Your ${field}`} aria-invalid={Boolean(errors[field])} />{errors[field] && <small>{errors[field]}</small>}</label>)}
-      <label><span>message</span><textarea name="message" rows={5} placeholder="Tell me about the idea..." aria-invalid={Boolean(errors["message"])} />{errors["message"] && <small>{errors["message"]}</small>}</label>
-      <Button type="submit" disabled={status === "sending"}>{status === "sending" ? "Preparing message..." : status === "sent" ? "Email app opened" : "Send message"}<Send size={17} /></Button>
+      {["name", "email", "subject"].map((f) => <label key={f}><span>{f}</span><input name={f} type={f === "email" ? "email" : "text"} placeholder={`Your ${f}`} aria-invalid={Boolean(errors[f])} /><AnimatePresence>{errors[f] && <motion.small initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: [0, -4, 4, 0] }} exit={{ opacity: 0 }}>{errors[f]}</motion.small>}</AnimatePresence></label>)}
+      <label><span>message</span><textarea name="message" rows={5} placeholder="Tell me about the idea..." aria-invalid={Boolean(errors["message"])} />{errors["message"] && <motion.small initial={{ opacity: 0 }} animate={{ opacity: 1, x: [0, -4, 4, 0] }}>{errors["message"]}</motion.small>}</label>
+      <Button type="submit" disabled={status === "sending"}>{status === "sending" ? "Sending..." : status === "sent" ? <>Message ready <Check size={17} /></> : <>Send Message <Send size={17} /></>}</Button>
+      {status === "sent" && <motion.p className="form-success" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>{isProvided(profile.email) ? "Your email app has opened with the message prepared." : "Thanks! Direct email will be available soon."}</motion.p>}
     </form>
   );
 }
 
 export function Portfolio() {
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState<string>("All");
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
-  useEffect(() => { const timer = window.setTimeout(() => setLoading(false), reduced ? 0 : 900); return () => window.clearTimeout(timer); }, [reduced]);
-  const categories = useMemo(() => ["All", ...Array.from(new Set(projects.map((project) => project.category)))], []);
-  const visibleProjects = filter === "All" ? projects : projects.filter((project) => project.category === filter);
+  useEffect(() => { const t = window.setTimeout(() => setLoading(false), reduced ? 0 : 1000); return () => window.clearTimeout(t); }, [reduced]);
+  const visibleProjects = filter === "All" ? projects : projects.filter((p) => p.category === filter);
+  const direct = socialLinks.filter((l) => ["Email", "LinkedIn", "GitHub"].includes(l.label));
 
   return (
     <div className="site-shell">
-      <AnimatePresence>{loading && <motion.div className="loading-screen" exit={{ opacity: 0 }}><div className="loader-mark">{profile.initials}</div><p>Loading portfolio</p><span /></motion.div>}</AnimatePresence>
+      <AnimatePresence>{loading && <motion.div className="loading-screen" exit={{ opacity: 0 }}><div className="loader-mark">{profile.initials}</div><strong className="loader-name">{profile.name}</strong><p>Loading portfolio...</p><span /></motion.div>}</AnimatePresence>
+      <CustomCursor />
       <motion.div className="scroll-progress" style={{ scaleX }} />
-      <div className="ambient ambient-one" /><div className="ambient ambient-two" /><div className="grid-overlay" />
+      <div className="ambient ambient-one" /><div className="ambient ambient-two" /><div className="ambient ambient-three" /><div className="grid-overlay" />
       <Suspense fallback={null}><ParticleBackground /></Suspense>
       <Navbar />
       <main>
         <section id="home" className="hero">
-          <motion.div className="hero-copy" initial={reduced ? false : { opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }}>
-            <div className="status"><i /> Open to opportunities</div><p className="eyebrow">Hello, I’m</p><h1>{profile.name}</h1><h2>{profile.title}</h2><p className="hero-intro">{profile.intro}</p>
-            <div className="hero-actions"><Button asChild><a href="#projects">View projects <ArrowDown size={17} /></a></Button><Button asChild variant="secondary"><a href={profile.resume} download>Resume <Download size={17} /></a></Button><Button asChild variant="ghost"><a href="#contact">Contact me</a></Button></div>
-            <div className="hero-meta"><span>Based in {profile.location}</span><span>Available for internships & roles</span></div>
+          <motion.div className="hero-copy" initial={reduced ? false : { opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: 0.3, duration: 0.9 }}>
+            <div className="status"><i /> Open to Opportunities</div><p className="eyebrow">Hello, I’m</p><h1>{profile.name}</h1><h2>{profile.title}</h2>
+            <p className="hero-roles"><span>Java Full Stack Developer</span><b>|</b><span>Salesforce Developer</span></p>
+            <p className="hero-intro">{profile.tagline}</p>
+            <div className="hero-actions"><Button asChild><a href="#projects">View Projects <ArrowDown size={17} /></a></Button><Button asChild variant="secondary"><a href={profile.resume} download>Download Resume <Download size={17} /></a></Button><Button asChild variant="ghost"><a href="#contact">Contact Me</a></Button></div>
           </motion.div>
-          <div className="scene-shell" aria-label="Interactive 3D developer workspace"><Suspense fallback={<div className="scene-fallback">Initializing 3D workspace…</div>}><DeveloperScene /></Suspense><div className="scene-label"><span>Interactive workspace</span><i>Move your cursor</i></div></div>
+          <div className="scene-shell" aria-label="Interactive 3D scene showing Java Full Stack and Salesforce technologies"><Suspense fallback={<div className="scene-fallback">Initializing 3D workspace…</div>}><DeveloperScene /></Suspense><div className="scene-label"><span>Java · Salesforce</span><i>Move your cursor</i></div></div>
           <a className="scroll-cue" href="#about" aria-label="Scroll to about"><span>Scroll to explore</span><ArrowDown size={16} /></a>
         </section>
 
-        <Section id="about" eyebrow="01 / About" title="Curious by nature. Deliberate by design.">
-          <div className="about-grid"><div className="about-copy"><p>{profile.about}</p><p>{profile.focus}</p><div className="timeline"><div><GraduationCap /><span><b>Education</b>Computer Science Engineering</span></div><div><Terminal /><span><b>Direction</b>Software & frontend development</span></div></div></div><div className="stats-grid">{profile.stats.map((stat, index) => <motion.div className="stat-card interactive-card" key={stat.label} whileHover={{ y: -5 }}><span>0{index + 1}</span><strong>{stat.value}</strong><p>{stat.label}</p></motion.div>)}</div></div>
+        <section className="focus-band" aria-label="Primary career focus">
+          {careerFocus.map((c, i) => (
+            <motion.article key={c.title} className={`focus-card focus-${c.tone}`} initial={reduced ? false : { opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12, duration: 0.7 }}>
+              <div className="focus-icon">{i === 0 ? <Terminal /> : <Cloud />}</div>
+              <p className="kicker">Career focus 0{i + 1}</p><h3>{c.title}</h3><p>{c.summary}</p>
+              <div className="tags">{c.items.map((t) => <span key={t}>{t}</span>)}</div>
+            </motion.article>
+          ))}
+        </section>
+
+        <Section id="about" eyebrow="01 / About" title="Two paths. One builder mindset.">
+          <div className="about-grid"><div className="about-copy"><p>{profile.about}</p><p>{profile.focus}</p></div>
+            <div className="stats-grid">{aboutCards.map((c, i) => { const Icon = aboutIcons[i] ?? Code2; return <motion.div className="stat-card about-card interactive-card" key={c.title} whileHover={{ y: -5 }}><Icon /><strong>{c.title}</strong><p>{c.text}</p></motion.div>; })}</div>
+          </div>
         </Section>
 
-        <Section id="skills" eyebrow="02 / Skills" title="A growing technical toolkit.">
-          <div className="skills-grid">{skills.map((group, groupIndex) => { const Icon = iconMap[groupIndex % iconMap.length] ?? Code2; return <article className="skill-group interactive-card" key={group.category}><div className="group-title"><Icon /><h3>{group.category}</h3></div>{group.items.map(([name, description, level]) => <motion.div className="skill-row" key={`${group.category}-${name}`} whileHover={{ x: 5 }}><div><b>{name}</b><p>{description}</p></div><span>{level}</span></motion.div>)}</article>; })}</div>
+        <Section id="skills" eyebrow="02 / Skills" title="Two tracks, one toolkit.">
+          <div className="skill-tracks">
+            {skillGroups.map((g) => (
+              <div key={g.track} className="skill-track track-cyan"><h3 className="track-title"><Terminal /> {g.track}</h3>
+                <div className="skills-grid">{g.categories.map((cat) => { const Icon = catIcons[cat.name] ?? Code2; return <TiltCard key={cat.name} className="skill-group interactive-card"><div className="group-title"><Icon /><h4>{cat.name}</h4></div><div className="tags">{cat.items.map((s) => <span key={s}>{s}</span>)}</div></TiltCard>; })}</div>
+              </div>
+            ))}
+            <div className="skill-track track-violet"><h3 className="track-title"><Cloud /> Salesforce Development</h3>
+              <div className="skills-grid">{salesforceSkills.map((s, i) => { const Icon = sfIcons[i] ?? Cloud; return <TiltCard key={s.name} className="skill-group interactive-card"><div className="group-title"><Icon /><h4>{s.name}</h4></div><p className="skill-desc">{s.description}</p></TiltCard>; })}</div>
+            </div>
+          </div>
         </Section>
 
         <Section id="projects" eyebrow="03 / Projects" title="Selected work, built with intent.">
-          <div className="filters" role="group" aria-label="Filter projects">{categories.map((category) => <Button key={category} variant={filter === category ? "primary" : "ghost"} onClick={() => setFilter(category)}>{category}</Button>)}</div>
-          <motion.div className="projects-grid" layout><AnimatePresence mode="popLayout">{visibleProjects.map((project, index) => <ProjectCard key={project.title} project={project} index={index} />)}</AnimatePresence></motion.div>
+          <div className="filters" role="group" aria-label="Filter projects">{projectCategories.map((c) => <Button key={c} variant={filter === c ? "primary" : "ghost"} onClick={() => setFilter(c)} aria-pressed={filter === c}>{c}</Button>)}</div>
+          <motion.div className="projects-grid" layout><AnimatePresence mode="popLayout">{visibleProjects.map((p) => <ProjectCard key={p.title} project={p} />)}</AnimatePresence></motion.div>
+          {visibleProjects.length === 0 && <p className="empty-note">Projects in this category are coming soon.</p>}
         </Section>
 
-        <Section id="articles" eyebrow="04 / Articles" title="Notes from the learning curve.">
-          <div className="articles-grid">{articles.map((article, index) => <motion.a href={article.url} target="_blank" rel="noreferrer" className="article-card interactive-card" key={article.title} whileHover={{ y: -7 }}><span>0{index + 1}</span><div className="article-meta"><i>{article.category}</i><i>{article.readingTime}</i></div><h3>{article.title}</h3><p>{article.description}</p><footer><time>{article.date}</time><ArrowRight /></footer></motion.a>)}</div><Button asChild variant="secondary"><a href="[ALL ARTICLES URL]" target="_blank" rel="noreferrer">View all articles <ArrowRight size={17} /></a></Button>
+        <Section id="articles" eyebrow="04 / Articles" title="Featured articles.">
+          <div className="articles-grid">{articles.map((a, i) => { const live = isProvided(a.url); return <motion.a variants={item} href={live ? a.url : undefined} aria-disabled={!live} target="_blank" rel="noreferrer" className="article-card interactive-card" key={a.title} whileHover={{ y: -7 }}><span>0{i + 1}</span><div className="article-meta"><i>{a.category}</i><i>{a.readingTime}</i></div><h3>{a.title}</h3><p>{a.description}</p><footer><time>{a.date}</time>{live ? <ArrowRight /> : <small>Coming soon</small>}</footer></motion.a>; })}</div>
+          {isProvided(allArticlesUrl) && <Button asChild variant="secondary"><a href={allArticlesUrl} target="_blank" rel="noreferrer">View All Articles <ArrowRight size={17} /></a></Button>}
         </Section>
 
-        <Section id="coding" eyebrow="05 / Coding" title="Practice, progress, repeat.">
-          <div className="profiles-grid">{codingProfiles.map((item) => <motion.a href={item.url} target="_blank" rel="noreferrer" className="profile-card interactive-card" key={item.platform} whileHover={{ y: -6 }}><div><Code2 /><ExternalLink size={16} /></div><h3>{item.platform}</h3><b>{item.username}</b><p>{item.description}</p></motion.a>)}</div>
+        <Section id="coding" eyebrow="05 / Coding Profiles" title="Practice, progress, repeat.">
+          {codingProfiles.length ? <div className="profiles-grid">{codingProfiles.map((p, i) => <motion.a animate={reduced ? undefined : { y: [0, -6, 0] }} transition={{ duration: 4, repeat: Infinity, delay: i * 0.4 }} href={p.url} target="_blank" rel="noreferrer" className="profile-card interactive-card" key={p.platform}><div><Code2 /><ExternalLink size={16} /></div><h3>{p.platform}</h3><b>{p.username}</b><p>Visit Profile →</p></motion.a>)}</div>
+            : <p className="empty-note">Coding profiles will appear here once they’re added.</p>}
         </Section>
 
-        <Section id="resume" eyebrow="06 / Resume" title="Want to know more about my experience?">
-          <div className="resume-band"><div><p>A concise view of my education, technical strengths, projects, and development journey.</p><div className="hero-actions"><Button asChild><a href={profile.resume} download>Download resume <Download size={17} /></a></Button><Button asChild variant="secondary"><a href={profile.resume} target="_blank" rel="noreferrer">View resume <ExternalLink size={17} /></a></Button></div></div><div className="resume-preview"><div><FileText /><span>RESUME / PDF</span></div><strong>{profile.name}</strong><p>Computer Science Engineering Student</p><i /></div></div>
+        <Section id="resume" eyebrow="06 / Resume" title="Explore My Resume">
+          <div className="resume-band"><div><p>Learn more about my education, technical skills, projects, and development journey.</p><div className="hero-actions"><Button asChild><a href={profile.resume} target="_blank" rel="noreferrer">View Resume <ExternalLink size={17} /></a></Button><Button asChild variant="secondary"><a href={profile.resume} download>Download Resume <Download size={17} /></a></Button></div></div><div className="resume-preview"><div><FileText /><span>RESUME / PDF</span></div><strong>{profile.name}</strong><p>Java Full Stack · Salesforce</p><i /></div></div>
         </Section>
 
-        <Section id="contact" eyebrow="07 / Contact" title="Let’s build something together.">
-          <div className="contact-grid"><div className="contact-copy"><p>Have a project, internship, or interesting problem in mind? Send a message and your email app will open with everything prepared.</p><a href={`mailto:${profile.email}`}><Mail /> <span><small>Email</small>{profile.email}</span></a><div className="social-row">{socialLinks.map((link) => <a key={link.label} href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer" title={link.label}>{link.label}</a>)}</div></div><ContactForm /></div>
+        <Section id="contact" eyebrow="07 / Contact" title="Let’s Build Something Together">
+          <div className="contact-grid"><div className="contact-copy"><p>Have an internship, role, or project in mind? Send a message and I’ll get back to you.</p>
+            {direct.length > 0 && <div className="social-row">{direct.map((l) => { const Icon = socialIcon(l.label); return <a key={l.label} href={l.url} target={l.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer" aria-label={l.label} data-tip={l.label}><Icon size={18} /></a>; })}</div>}
+          </div><ContactForm /></div>
         </Section>
       </main>
-      <footer className="footer"><div><a href="#home" className="brand"><span>{profile.initials}</span><i /></a><p>{profile.name}<br />Computer Science Engineering Student | Developer</p></div><nav aria-label="Footer navigation">{["Home", "About", "Skills", "Projects", "Contact"].map((item) => <a key={item} href={`#${item.toLowerCase()}`}>{item}</a>)}</nav><div className="footer-end"><p>© 2026 {profile.name}. All rights reserved.</p><a href="#home" className="back-top" aria-label="Back to top"><ArrowDown /></a></div></footer>
+      <footer className="footer"><div><a href="#home" className="brand" aria-label="Back to home"><span>{profile.initials}</span><i /></a><p>{profile.name}<br />Java Full Stack Developer | Salesforce Developer</p></div>
+        <nav aria-label="Footer navigation">{navItems.slice(0, 5).map((n) => <a key={n.id} href={`#${n.id}`}>{n.label}</a>)}</nav>
+        <div className="footer-end">{socialLinks.length > 0 && <div className="social-row">{socialLinks.map((l) => { const Icon = socialIcon(l.label); return <a key={l.label} href={l.url} target={l.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer" aria-label={l.label} data-tip={l.label}><Icon size={16} /></a>; })}</div>}<p>© 2026 {profile.name}. All rights reserved.</p><a href="#home" className="back-top" aria-label="Back to top"><ArrowUp /></a></div>
+      </footer>
     </div>
   );
 }
