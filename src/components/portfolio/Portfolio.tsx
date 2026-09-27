@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "motion/react";
 import { ArrowDown, ArrowRight, Code2, Database, Download, ExternalLink, FileText, Github, GraduationCap, Mail, Menu, Send, Sparkles, Terminal, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "./PortfolioButton";
 import { articles, codingProfiles, navItems, profile, projects, skills, socialLinks } from "@/data/portfolio";
 
 const DeveloperScene = lazy(() => import("./DeveloperScene").then((module) => ({ default: module.DeveloperScene })));
@@ -60,7 +60,7 @@ function ContactForm() {
     const nextErrors: Record<string, string> = {};
     ["name", "subject", "message"].forEach((key) => { if (!String(data.get(key) ?? "").trim()) nextErrors[key] = "This field is required"; });
     const email = String(data.get("email") ?? "");
-    if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = "Enter a valid email";
+    if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors["email"] = "Enter a valid email";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
     setStatus("sending");
@@ -74,7 +74,7 @@ function ContactForm() {
   return (
     <form className="contact-form" onSubmit={submit} noValidate>
       {["name", "email", "subject"].map((field) => <label key={field}><span>{field}</span><input name={field} type={field === "email" ? "email" : "text"} placeholder={`Your ${field}`} aria-invalid={Boolean(errors[field])} />{errors[field] && <small>{errors[field]}</small>}</label>)}
-      <label><span>message</span><textarea name="message" rows={5} placeholder="Tell me about the idea..." aria-invalid={Boolean(errors.message)} />{errors.message && <small>{errors.message}</small>}</label>
+      <label><span>message</span><textarea name="message" rows={5} placeholder="Tell me about the idea..." aria-invalid={Boolean(errors["message"])} />{errors["message"] && <small>{errors["message"]}</small>}</label>
       <Button type="submit" disabled={status === "sending"}>{status === "sending" ? "Preparing message..." : status === "sent" ? "Email app opened" : "Send message"}<Send size={17} /></Button>
     </form>
   );
@@ -113,7 +113,7 @@ export function Portfolio() {
         </Section>
 
         <Section id="skills" eyebrow="02 / Skills" title="A growing technical toolkit.">
-          <div className="skills-grid">{skills.map((group, groupIndex) => { const Icon = iconMap[groupIndex % iconMap.length]; return <article className="skill-group interactive-card" key={group.category}><div className="group-title"><Icon /><h3>{group.category}</h3></div>{group.items.map(([name, description, level]) => <motion.div className="skill-row" key={`${group.category}-${name}`} whileHover={{ x: 5 }}><div><b>{name}</b><p>{description}</p></div><span>{level}</span></motion.div>)}</article>; })}</div>
+          <div className="skills-grid">{skills.map((group, groupIndex) => { const Icon = iconMap[groupIndex % iconMap.length] ?? Code2; return <article className="skill-group interactive-card" key={group.category}><div className="group-title"><Icon /><h3>{group.category}</h3></div>{group.items.map(([name, description, level]) => <motion.div className="skill-row" key={`${group.category}-${name}`} whileHover={{ x: 5 }}><div><b>{name}</b><p>{description}</p></div><span>{level}</span></motion.div>)}</article>; })}</div>
         </Section>
 
         <Section id="projects" eyebrow="03 / Projects" title="Selected work, built with intent.">
