@@ -6,7 +6,6 @@ import { CustomCursor } from "./CustomCursor";
 import { aboutCards, careerFocus, isProvided, navItems, profile } from "@/data/portfolio";
 import { salesforceSkills, skillGroups } from "@/data/skills";
 import { projectCategories, projects } from "@/data/projects";
-import { allArticlesUrl, articles } from "@/data/articles";
 import { codingProfiles } from "@/data/codingProfiles";
 import { socialLinks } from "@/data/socialLinks";
 
@@ -187,21 +186,16 @@ export function Portfolio() {
           {visibleProjects.length === 0 && <p className="empty-note">Projects in this category are coming soon.</p>}
         </Section>
 
-        <Section id="articles" eyebrow="04 / Articles" title="Featured articles.">
-          <div className="articles-grid">{articles.map((a, i) => { const live = isProvided(a.url); return <motion.a variants={item} href={live ? a.url : undefined} aria-disabled={!live} target="_blank" rel="noreferrer" className="article-card interactive-card" key={a.title} whileHover={{ y: -7 }}><span>0{i + 1}</span><div className="article-meta"><i>{a.category}</i><i>{a.readingTime}</i></div><h3>{a.title}</h3><p>{a.description}</p><footer><time>{a.date}</time>{live ? <ArrowRight /> : <small>Coming soon</small>}</footer></motion.a>; })}</div>
-          {isProvided(allArticlesUrl) && <Button asChild variant="secondary"><a href={allArticlesUrl} target="_blank" rel="noreferrer">View All Articles <ArrowRight size={17} /></a></Button>}
-        </Section>
-
-        <Section id="coding" eyebrow="05 / Coding Profiles" title="Practice, progress, repeat.">
+        <Section id="coding" eyebrow="04 / Coding Profiles" title="Practice, progress, repeat.">
           {codingProfiles.length ? <div className="profiles-grid">{codingProfiles.map((p, i) => <motion.a animate={reduced ? {} : { y: [0, -6, 0] }} transition={{ duration: 4, repeat: Infinity, delay: i * 0.4 }} href={p.url} target="_blank" rel="noreferrer" className="profile-card interactive-card" key={p.platform}><div><Code2 /><ExternalLink size={16} /></div><h3>{p.platform}</h3><b>{p.username}</b><p>Visit Profile →</p></motion.a>)}</div>
             : <p className="empty-note">Coding profiles will appear here once they’re added.</p>}
         </Section>
 
-        <Section id="resume" eyebrow="06 / Resume" title="Explore My Resume">
+        <Section id="resume" eyebrow="05 / Resume" title="Explore My Resume">
           <div className="resume-band"><div><p>Learn more about my education, technical skills, projects, and development journey.</p><div className="hero-actions"><Button asChild><a href={profile.resume} target="_blank" rel="noreferrer">View Resume <ExternalLink size={17} /></a></Button><Button asChild variant="secondary"><a href={profile.resume} download>Download Resume <Download size={17} /></a></Button></div></div><div className="resume-preview"><div><FileText /><span>RESUME / PDF</span></div><strong>{profile.name}</strong><p>Java Full Stack · Salesforce</p><i /></div></div>
         </Section>
 
-        <Section id="contact" eyebrow="07 / Contact" title="Let’s Build Something Together">
+        <Section id="contact" eyebrow="06 / Contact" title="Let’s Build Something Together">
           <div className="contact-grid"><div className="contact-copy"><p>Have an internship, role, or project in mind? Send a message and I’ll get back to you.</p>
             {direct.length > 0 && <div className="social-row">{direct.map((l) => { const Icon = socialIcon(l.label); return <a key={l.label} href={l.url} target={l.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer" aria-label={l.label} data-tip={l.label}><Icon size={18} /></a>; })}</div>}
           </div><ContactForm /></div>
