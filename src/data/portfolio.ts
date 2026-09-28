@@ -11,7 +11,7 @@ export const profile = {
     "I am a Computer Science Engineering student focused on Java Full Stack Development and Salesforce Development. I have knowledge of Java, HTML, CSS, JavaScript, React.js, SQL, Excel, Git, and Salesforce CRM concepts.",
   focus: "I enjoy building practical applications, exploring new technologies, and continuously improving my development skills.",
   location: "[YOUR LOCATION]",
-  resume: "/assets/resume.pdf",
+  resume: "/assets/Sahaana_M_Resume.pdf",
 };
 
 /** A value counts as "provided" once its [PLACEHOLDER] brackets are replaced. */
