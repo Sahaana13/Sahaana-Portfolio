@@ -10,7 +10,7 @@ const sfTags = ["Salesforce CRM", "Flow Builder", "Reports & Dashboards"];
 function Tag({ label, position, color }: { label: string; position: [number, number, number]; color: string }) {
   return (
     <Float speed={1.4} rotationIntensity={0} floatIntensity={0.6}>
-      <Html position={position} center distanceFactor={8} zIndexRange={[5, 0]}>
+      <Html position={position} center distanceFactor={8} zIndexRange={[5, 0]} style={{ pointerEvents: "none" }}>
         <span className="scene-tag" style={{ borderColor: color, color }}>{label}</span>
       </Html>
     </Float>
@@ -20,7 +20,9 @@ function Tag({ label, position, color }: { label: string; position: [number, num
 function Rig({ mobile }: { mobile: boolean }) {
   const group = useRef<THREE.Group>(null);
   const cloud = useRef<THREE.Group>(null);
-  const { pointer } = useThree();
+  const { pointer, viewport } = useThree();
+  // Scene content spans ~9 x 5.5 world units; shrink it to always fit inside the box.
+  const fit = Math.min(1, viewport.width / 9, viewport.height / 5.6);
   const java = mobile ? javaTags.slice(0, 3) : javaTags;
   const sf = mobile ? sfTags.slice(0, 2) : sfTags;
   useFrame((state, raw) => {
@@ -32,7 +34,7 @@ function Rig({ mobile }: { mobile: boolean }) {
     if (cloud.current) cloud.current.rotation.y = state.clock.elapsedTime * 0.25;
   });
   return (
-    <group ref={group}>
+    <group scale={fit}><group ref={group}>
       {/* Java Full Stack: laptop */}
       <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.4}>
         <group position={[-1.1, 0, 0]} rotation={[-0.05, 0.35, 0]} scale={0.8}>
@@ -78,12 +80,13 @@ function Rig({ mobile }: { mobile: boolean }) {
         return <Tag key={t} label={t} color={c.cyan} position={[-1.1 + Math.cos(a) * 2.3, Math.sin(a) * 1.6 + 0.3, 0.6]} />;
       })}
       {sf.map((t, i) => <Tag key={t} label={t} color={c.violet} position={[2.3, 0.15 - i * 0.55, 0.8]} />)}
-    </group>
+    </group></group>
   );
 }
 
 export function DeveloperScene() {
   const mobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
+  // Tags are also DOM overlays; keep them inside the canvas box.
   return (
     <Canvas dpr={mobile ? [1, 1.25] : [1, 1.5]} camera={{ position: [0, 0.3, 7.5], fov: 45 }} gl={{ antialias: !mobile, alpha: true }}>
       <ambientLight intensity={0.7} />
