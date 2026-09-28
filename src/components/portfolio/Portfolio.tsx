@@ -124,6 +124,8 @@ function ContactForm() {
 export function Portfolio() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("All");
+  const [resumeOpen, setResumeOpen] = useState(false);
+  useEffect(() => { if (!resumeOpen) return; const k = (e: KeyboardEvent) => { if (e.key === "Escape") setResumeOpen(false); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [resumeOpen]);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
