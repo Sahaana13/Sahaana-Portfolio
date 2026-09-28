@@ -124,6 +124,8 @@ function ContactForm() {
 export function Portfolio() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("All");
+  const [resumeOpen, setResumeOpen] = useState(false);
+  useEffect(() => { if (!resumeOpen) return; const k = (e: KeyboardEvent) => { if (e.key === "Escape") setResumeOpen(false); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [resumeOpen]);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
@@ -192,7 +194,7 @@ export function Portfolio() {
         </Section>
 
         <Section id="resume" eyebrow="05 / Resume" title="Explore My Resume">
-          <div className="resume-band"><div><p>Learn more about my education, technical skills, projects, and development journey.</p><div className="hero-actions"><Button asChild><a href={profile.resume} target="_blank" rel="noreferrer">View Resume <ExternalLink size={17} /></a></Button><Button asChild variant="secondary"><a href={profile.resume} download>Download Resume <Download size={17} /></a></Button></div></div><div className="resume-preview"><div><FileText /><span>RESUME / PDF</span></div><strong>{profile.name}</strong><p>Java Full Stack · Salesforce</p><i /></div></div>
+          <div className="resume-band"><div><p>Learn more about my education, technical skills, projects, and development journey.</p><div className="hero-actions"><Button onClick={() => setResumeOpen(true)}>View Resume <ExternalLink size={17} /></Button><Button asChild variant="secondary"><a href={profile.resume} download>Download Resume <Download size={17} /></a></Button></div></div>{resumeOpen && (<div role="dialog" aria-modal="true" aria-label="Resume viewer" onClick={() => setResumeOpen(false)} style={{position:"fixed",inset:0,zIndex:100,background:"color-mix(in oklab, var(--background) 85%, transparent)",backdropFilter:"blur(8px)",display:"flex",flexDirection:"column",padding:"1rem",gap:"0.75rem"}}><div style={{display:"flex",justifyContent:"flex-end",gap:"0.5rem"}} onClick={(e) => e.stopPropagation()}><Button asChild variant="secondary"><a href={profile.resume} target="_blank" rel="noreferrer">Open in new tab <ExternalLink size={16} /></a></Button><Button onClick={() => setResumeOpen(false)} autoFocus>Close</Button></div><iframe title="Sahaana M resume" src={profile.resume} onClick={(e) => e.stopPropagation()} style={{flex:1,width:"100%",maxWidth:"960px",margin:"0 auto",border:0,borderRadius:"12px",background:"white"}} /></div>)}<div className="resume-preview"><div><FileText /><span>RESUME / PDF</span></div><strong>{profile.name}</strong><p>Java Full Stack · Salesforce</p><i /></div></div>
         </Section>
 
         <Section id="contact" eyebrow="06 / Contact" title="Let’s Build Something Together">
