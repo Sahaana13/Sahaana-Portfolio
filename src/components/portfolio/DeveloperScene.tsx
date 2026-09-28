@@ -10,7 +10,7 @@ const sfTags = ["Salesforce CRM", "Flow Builder", "Reports & Dashboards"];
 function Tag({ label, position, color }: { label: string; position: [number, number, number]; color: string }) {
   return (
     <Float speed={1.4} rotationIntensity={0} floatIntensity={0.6}>
-      <Html position={position} center distanceFactor={8} zIndexRange={[5, 0]} style={{ pointerEvents: "none" }}>
+      <Html position={position} center distanceFactor={5} zIndexRange={[5, 0]} style={{ pointerEvents: "none" }}>
         <span className="scene-tag" style={{ borderColor: color, color }}>{label}</span>
       </Html>
     </Float>
@@ -22,7 +22,7 @@ function Rig({ mobile }: { mobile: boolean }) {
   const cloud = useRef<THREE.Group>(null);
   const { pointer, viewport } = useThree();
   // Scene content spans ~9 x 5.5 world units; shrink it to always fit inside the box.
-  const fit = Math.min(1, viewport.width / 9, viewport.height / 5.6);
+  const fit = Math.min(1, viewport.width / 11, viewport.height / 6.4);
   const java = mobile ? javaTags.slice(0, 3) : javaTags;
   const sf = mobile ? sfTags.slice(0, 2) : sfTags;
   useFrame((state, raw) => {
@@ -77,9 +77,9 @@ function Rig({ mobile }: { mobile: boolean }) {
       )}
       {java.map((t, i) => {
         const a = (i / java.length) * Math.PI * 1.2 + Math.PI * 0.6;
-        return <Tag key={t} label={t} color={c.cyan} position={[-1.1 + Math.cos(a) * 2.3, Math.sin(a) * 1.6 + 0.3, 0.6]} />;
+        return <Tag key={t} label={t} color={c.cyan} position={[-1.1 + Math.cos(a) * 1.9, Math.sin(a) * 1.6 + 0.3, 0.6]} />;
       })}
-      {sf.map((t, i) => <Tag key={t} label={t} color={c.violet} position={[2.3, 0.15 - i * 0.55, 0.8]} />)}
+      {sf.map((t, i) => <Tag key={t} label={t} color={c.violet} position={[1.9, 0.1 - i * 0.5, 0.8]} />)}
     </group></group>
   );
 }
