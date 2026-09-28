@@ -1,8 +1,7 @@
-// Replace placeholders with your real projects. Categories: Java, Full Stack, Salesforce, Frontend, Other.
-export const projectCategories = ["All", "Java", "Full Stack", "Salesforce", "Frontend", "Other"] as const;
+// Only genuine projects. Links stay empty until real URLs are provided.
+export const projectCategories = ["All", "Salesforce", "Frontend"] as const;
 
 export const projects = [
-  { title: "[JAVA FULL STACK PROJECT]", description: "Describe the problem, your approach, and what the application does.", technologies: ["Java", "React.js", "SQL"], image: "01", github: "[GITHUB PROJECT URL]", demo: "[LIVE DEMO URL]", category: "Full Stack" },
-  { title: "[SALESFORCE PROJECT]", description: "Describe the Salesforce setup — objects, flows, reports, or access rules you configured.", technologies: ["Salesforce CRM", "Flow Builder", "Reports", "Dashboards", "Role-Based Access"], image: "02", github: "[GITHUB PROJECT URL]", demo: "[LIVE DEMO URL]", category: "Salesforce" },
-  { title: "[FRONTEND PROJECT]", description: "Describe the interface, key features, and technologies used.", technologies: ["HTML", "CSS", "JavaScript"], image: "03", github: "[GITHUB PROJECT URL]", demo: "[LIVE DEMO URL]", category: "Frontend" },
+  { title: "Hotel Banquets CRM", description: "A Salesforce CRM solution for managing hotel banquet operations, using Salesforce automation, reporting, and access control.", technologies: ["Salesforce CRM", "Flow Builder", "Reports", "Dashboards", "Role-Based Access"], image: "01", github: "[GITHUB PROJECT URL]", demo: "[LIVE DEMO URL]", category: "Salesforce" },
+  { title: "Personal Portfolio Website", description: "This interactive portfolio, built with React, Framer Motion, Three.js, and particle effects to present my skills, projects, and resume.", technologies: ["React", "Framer Motion", "Three.js", "CSS"], image: "02", github: "[GITHUB PROJECT URL]", demo: "[LIVE DEMO URL]", category: "Frontend" },
 ];

@@ -34,7 +34,6 @@ export const navItems = [
   { label: "About", id: "about" },
   { label: "Skills", id: "skills" },
   { label: "Projects", id: "projects" },
-  { label: "Articles", id: "articles" },
   { label: "Coding Profiles", id: "coding" },
   { label: "Resume", id: "resume" },
   { label: "Contact", id: "contact" },
