@@ -1,6 +1,6 @@
-import { lazy, Suspense, useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, type Variants } from "motion/react";
-import { ArrowDown, ArrowRight, ArrowUp, BarChart3, Check, Cloud, Code2, Database, Download, ExternalLink, FileText, GitBranch, Github, GraduationCap, Layout, Linkedin, Mail, Menu, Send, ShieldCheck, Terminal, Workflow, X } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, BarChart3, Cloud, Code2, Database, Download, ExternalLink, FileText, GitBranch, Github, GraduationCap, Layout, Linkedin, Mail, Menu, ShieldTerminal, Workflow, X } from "lucide-react";
 import { Button } from "./PortfolioButton";
 import { CustomCursor } from "./CustomCursor";
 import { aboutCards, careerFocus, isProvided, navItems, profile } from "@/data/portfolio";
@@ -8,6 +8,13 @@ import { salesforceSkills, skillGroups } from "@/data/skills";
 import { projectCategories, projects } from "@/data/projects";
 import { codingProfiles } from "@/data/codingProfiles";
 import { socialLinks } from "@/data/socialLinks";
+
+import hotelImg from "@/assets/project-hotel-banquets-crm.jpg";
+import portfolioImg from "@/assets/project-portfolio-website.jpg";
+const projectImages: Record<string, { src: string; alt: string }> = {
+  "Hotel Banquets CRM": { src: hotelImg, alt: "Dark CRM dashboard with banquet booking calendar, event cards and revenue charts" },
+  "Personal Portfolio Website": { src: portfolioImg, alt: "Responsive portfolio website shown on laptop, tablet and phone screens" },
+};
 
 const DeveloperScene = lazy(() => import("./DeveloperScene").then((m) => ({ default: m.DeveloperScene })));
 const ParticleBackground = lazy(() => import("./ParticleBackground").then((m) => ({ default: m.ParticleBackground })));
@@ -78,7 +85,7 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
   const hasDemo = isProvided(project.demo);
   return (
     <motion.article className="project-card interactive-card" layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} whileHover={{ y: -8 }}>
-      <div className="project-visual" role="img" aria-label={`${project.title} preview placeholder`}><span>{project.image}</span><div>{project.category === "Salesforce" ? <Cloud /> : <Code2 />}<p>{project.category}</p></div></div>
+      <div className="project-visual">{projectImages[project.title] ? <img src={projectImages[project.title]!.src} alt={projectImages[project.title]!.alt} width={1280} height={768} loading="lazy" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : <span>{project.image}</span>}<div>{project.category === "Salesforce" ? <Cloud /> : <Code2 />}<p>{project.category}</p></div></div>
       <div className="project-content"><p className="kicker">{project.category}</p><h3>{project.title}</h3><p>{project.description}</p><div className="tags">{project.technologies.map((t) => <span key={t}>{t}</span>)}</div>
         <div className="card-actions">
           {hasGit ? <a href={project.github} target="_blank" rel="noreferrer"><Github size={17} /> GitHub</a> : <span className="muted-link">GitHub link coming soon</span>}
@@ -89,35 +96,20 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
   );
 }
 
-function ContactForm() {
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const next: Record<string, string> = {};
-    ["name", "subject", "message"].forEach((k) => { if (!String(data.get(k) ?? "").trim()) next[k] = "This field is required"; });
-    const email = String(data.get("email") ?? "");
-    if (!/^\S+@\S+\.\S+$/.test(email)) next["email"] = "Enter a valid email";
-    setErrors(next);
-    if (Object.keys(next).length) return;
-    setStatus("sending");
-    window.setTimeout(() => {
-      if (isProvided(profile.email)) {
-        const subject = encodeURIComponent(String(data.get("subject")));
-        const body = encodeURIComponent(`From: ${data.get("name")} (${email})\n\n${data.get("message")}`);
-        window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
-      }
-      setStatus("sent");
-    }, 600);
-  };
+function ContactLinks() {
+  const items = [
+    { label: "Email", url: isProvided(profile.email) ? `mailto:${profile.email}` : "", text: isProvided(profile.email) ? profile.email : "[YOUR EMAIL]", Icon: Mail },
+    { label: "LinkedIn", url: socialLinks.find((l) => l.label === "LinkedIn")?.url ?? "", text: "Connect on LinkedIn", Icon: Linkedin },
+    { label: "GitHub", url: socialLinks.find((l) => l.label === "GitHub")?.url ?? "", text: "View my GitHub", Icon: Github },
+  ];
   return (
-    <form className="contact-form" onSubmit={submit} noValidate>
-      {["name", "email", "subject"].map((f) => <label key={f}><span>{f}</span><input name={f} type={f === "email" ? "email" : "text"} placeholder={`Your ${f}`} aria-invalid={Boolean(errors[f])} /><AnimatePresence>{errors[f] && <motion.small initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: [0, -4, 4, 0] }} exit={{ opacity: 0 }}>{errors[f]}</motion.small>}</AnimatePresence></label>)}
-      <label><span>message</span><textarea name="message" rows={5} placeholder="Tell me about the idea..." aria-invalid={Boolean(errors["message"])} />{errors["message"] && <motion.small initial={{ opacity: 0 }} animate={{ opacity: 1, x: [0, -4, 4, 0] }}>{errors["message"]}</motion.small>}</label>
-      <Button type="submit" disabled={status === "sending"}>{status === "sending" ? "Sending..." : status === "sent" ? <>Message ready <Check size={17} /></> : <>Send Message <Send size={17} /></>}</Button>
-      {status === "sent" && <motion.p className="form-success" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>{isProvided(profile.email) ? "Your email app has opened with the message prepared." : "Thanks! Direct email will be available soon."}</motion.p>}
-    </form>
+    <div className="profiles-grid">
+      {items.map(({ label, url, text, Icon }) => (
+        <a key={label} href={url || undefined} target={url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer" className="profile-card interactive-card" aria-label={label}>
+          <div><Icon /><ExternalLink size={16} /></div><h3>{label}</h3><b>{text}</b>
+        </a>
+      ))}
+    </div>
   );
 }
 
@@ -131,7 +123,6 @@ export function Portfolio() {
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
   useEffect(() => { const t = window.setTimeout(() => setLoading(false), reduced ? 0 : 1000); return () => window.clearTimeout(t); }, [reduced]);
   const visibleProjects = filter === "All" ? projects : projects.filter((p) => p.category === filter);
-  const direct = socialLinks.filter((l) => ["Email", "LinkedIn", "GitHub"].includes(l.label));
 
   return (
     <div className="site-shell">
@@ -198,9 +189,8 @@ export function Portfolio() {
         </Section>
 
         <Section id="contact" eyebrow="06 / Contact" title="Let’s Build Something Together">
-          <div className="contact-grid"><div className="contact-copy"><p>Have an internship, role, or project in mind? Send a message and I’ll get back to you.</p>
-            {direct.length > 0 && <div className="social-row">{direct.map((l) => { const Icon = socialIcon(l.label); return <a key={l.label} href={l.url} target={l.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer" aria-label={l.label} data-tip={l.label}><Icon size={18} /></a>; })}</div>}
-          </div><ContactForm /></div>
+          <div className="contact-grid"><div className="contact-copy"><p>Have an internship, role, or project in mind? Reach out through any of these channels.</p>
+          </div><ContactLinks /></div>
         </Section>
       </main>
       <footer className="footer"><div><a href="#home" className="brand" aria-label="Back to home"><span>{profile.initials}</span><i /></a><p>{profile.name}<br />Java Full Stack Developer | Salesforce Developer</p></div>
