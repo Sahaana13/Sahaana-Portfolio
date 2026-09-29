@@ -2,7 +2,7 @@
 export const profile = {
   name: "Sahaana M",
   initials: "SM",
-  email: "[YOUR EMAIL]",
+  email: "sahaanadevika@gmail.com",
   title: "Computer Science Engineering Student",
   roles: "Java Full Stack Developer | Salesforce Developer",
   headline: "Computer Science Engineering Student | Java Full Stack Developer | Salesforce Developer",
