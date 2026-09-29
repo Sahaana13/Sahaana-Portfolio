@@ -103,7 +103,7 @@ function ContactLinks() {
     { label: "GitHub", url: socialLinks.find((l) => l.label === "GitHub")?.url ?? "", text: "View my GitHub", Icon: Github },
   ];
   return (
-    <div className="profiles-grid">
+    <div className="profiles-grid contact-cards">
       {items.map(({ label, url, text, Icon }) => (
         <a key={label} href={url || undefined} target={url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer" className="profile-card interactive-card" aria-label={label}>
           <div><Icon /><ExternalLink size={16} /></div><h3>{label}</h3><b>{text}</b>
