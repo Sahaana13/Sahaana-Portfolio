@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, type Variants } from "motion/react";
-import { ArrowDown, ArrowRight, ArrowUp, BarChart3, Cloud, Code2, Database, Download, ExternalLink, FileText, GitBranch, Github, GraduationCap, Layout, Linkedin, Mail, Menu, ShieldTerminal, Workflow, X } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, BarChart3, Cloud, Code2, Database, Download, ExternalLink, FileText, GitBranch, Github, GraduationCap, Layout, Linkedin, Mail, Menu, ShieldCheck, Terminal, Workflow, X } from "lucide-react";
 import { Button } from "./PortfolioButton";
 import { CustomCursor } from "./CustomCursor";
 import { aboutCards, careerFocus, isProvided, navItems, profile } from "@/data/portfolio";
