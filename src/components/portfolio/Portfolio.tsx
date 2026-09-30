@@ -6,7 +6,6 @@ import { CustomCursor } from "./CustomCursor";
 import { aboutCards, careerFocus, isProvided, navItems, profile } from "@/data/portfolio";
 import { salesforceSkills, skillGroups } from "@/data/skills";
 import { projectCategories, projects } from "@/data/projects";
-import { codingProfiles } from "@/data/codingProfiles";
 import { socialLinks } from "@/data/socialLinks";
 
 import hotelImg from "@/assets/project-hotel-banquets-crm.jpg";
@@ -105,7 +104,7 @@ function ContactLinks() {
   return (
     <div className="profiles-grid contact-cards">
       {items.map(({ label, url, text, Icon }) => (
-        <a key={label} href={url || undefined} target={url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer" className="profile-card interactive-card" aria-label={label}>
+        <a key={label} href={url || undefined} {...(url.startsWith("mailto:") ? {} : { target: "_blank", rel: "noopener noreferrer" })} className="profile-card interactive-card" aria-label={label}>
           <div><Icon /><ExternalLink size={16} /></div><h3>{label}</h3><b>{text}</b>
         </a>
       ))}
@@ -179,12 +178,7 @@ export function Portfolio() {
           {visibleProjects.length === 0 && <p className="empty-note">Projects in this category are coming soon.</p>}
         </Section>
 
-        <Section id="coding" eyebrow="04 / Coding Profiles" title="Practice, progress, repeat.">
-          {codingProfiles.length ? <div className="profiles-grid">{codingProfiles.map((p, i) => <motion.a animate={reduced ? {} : { y: [0, -6, 0] }} transition={{ duration: 4, repeat: Infinity, delay: i * 0.4 }} href={p.url} target="_blank" rel="noreferrer" className="profile-card interactive-card" key={p.platform}><div><Code2 /><ExternalLink size={16} /></div><h3>{p.platform}</h3><b>{p.username}</b><p>Visit Profile →</p></motion.a>)}</div>
-            : <p className="empty-note">Coding profiles will appear here once they’re added.</p>}
-        </Section>
-
-        <Section id="resume" eyebrow="05 / Resume" title="Explore My Resume">
+        <Section id="resume" eyebrow="04 / Resume" title="Explore My Resume">
           <div className="resume-band"><div><p>Learn more about my education, technical skills, projects, and development journey.</p><div className="hero-actions"><Button onClick={() => setResumeOpen(true)}>View Resume <ExternalLink size={17} /></Button><Button asChild variant="secondary"><a href={profile.resume} download>Download Resume <Download size={17} /></a></Button></div></div>{resumeOpen && (<div role="dialog" aria-modal="true" aria-label="Resume viewer" onClick={() => setResumeOpen(false)} style={{position:"fixed",inset:0,zIndex:100,background:"color-mix(in oklab, var(--background) 85%, transparent)",backdropFilter:"blur(8px)",display:"flex",flexDirection:"column",padding:"1rem",gap:"0.75rem"}}><div style={{display:"flex",justifyContent:"flex-end",gap:"0.5rem"}} onClick={(e) => e.stopPropagation()}><Button asChild variant="secondary"><a href={profile.resume} target="_blank" rel="noreferrer">Open in new tab <ExternalLink size={16} /></a></Button><Button onClick={() => setResumeOpen(false)} autoFocus>Close</Button></div><iframe title="Sahaana M resume" src={profile.resume} onClick={(e) => e.stopPropagation()} style={{flex:1,width:"100%",maxWidth:"960px",margin:"0 auto",border:0,borderRadius:"12px",background:"white"}} /></div>)}<div className="resume-preview"><div><FileText /><span>RESUME / PDF</span></div><strong>{profile.name}</strong><p>Java Full Stack · Salesforce</p><i /></div></div>
         </Section>
 
