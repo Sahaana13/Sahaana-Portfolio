@@ -23,8 +23,6 @@ function Rig({ mobile }: { mobile: boolean }) {
   const { pointer, viewport } = useThree();
   // Scene content spans ~9 x 5.5 world units; shrink it to always fit inside the box.
   const fit = Math.min(1, viewport.width / 11, viewport.height / 6.4);
-  const java = mobile ? [] : javaTags;
-  const sf = mobile ? [] : sfTags;
   useFrame((state, raw) => {
     const dt = Math.min(raw, 0.05);
     if (group.current) {
@@ -67,19 +65,17 @@ function Rig({ mobile }: { mobile: boolean }) {
           ))}
         </group>
       </Float>
-      {!mobile && (
-        <Float speed={1.3} rotationIntensity={0.8} floatIntensity={0.6}>
-          <mesh position={[2.3, -1.3, 0.6]}>
-            <octahedronGeometry args={[0.38, 0]} />
-            <meshStandardMaterial color={c.violet} emissive={c.violet} emissiveIntensity={0.4} wireframe />
-          </mesh>
-        </Float>
-      )}
-      {java.map((t, i) => {
-        const a = (i / java.length) * Math.PI * 1.2 + Math.PI * 0.6;
+      <Float speed={1.3} rotationIntensity={0.8} floatIntensity={0.6}>
+        <mesh position={[2.3, -1.3, 0.6]}>
+          <octahedronGeometry args={[0.38, 0]} />
+          <meshStandardMaterial color={c.violet} emissive={c.violet} emissiveIntensity={0.4} wireframe />
+        </mesh>
+      </Float>
+      {javaTags.map((t, i) => {
+        const a = (i / javaTags.length) * Math.PI * 1.2 + Math.PI * 0.6;
         return <Tag key={t} label={t} color={c.cyan} position={[-1.1 + Math.cos(a) * 1.9, Math.sin(a) * 1.6 + 0.3, 0.6]} />;
       })}
-      {sf.map((t, i) => <Tag key={t} label={t} color={c.violet} position={[1.9, 0.1 - i * 0.5, 0.8]} />)}
+      {sfTags.map((t, i) => <Tag key={t} label={t} color={c.violet} position={[1.9, 0.1 - i * 0.5, 0.8]} />)}
     </group></group>
   );
 }
@@ -93,22 +89,15 @@ export function DeveloperScene() {
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
   }, []);
-  // Tags are also DOM overlays; keep them inside the canvas box.
   return (
-    <>
-      <Canvas dpr={mobile ? [1, 1.25] : [1, 1.5]} camera={{ position: [0, 0.3, 7.5], fov: 45 }} gl={{ antialias: !mobile, alpha: true }}>
-        <ambientLight intensity={0.7} />
-        <pointLight position={[4, 4, 5]} intensity={18} color={c.cyan} />
-        <pointLight position={[-4, -1, 3]} intensity={12} color={c.magenta} />
-        <Suspense fallback={null}>
-          <Rig mobile={mobile} />
-          <Environment><Lightformer intensity={2} position={[0, 5, 2]} scale={[8, 8, 1]} /></Environment>
-        </Suspense>
-      </Canvas>
-      <div className="scene-mobile-skills" aria-label="Technologies shown in the scene">
-        <div>{javaTags.slice(0, 4).map((label) => <span className="scene-tag scene-tag-java" key={label}>{label}</span>)}</div>
-        <div>{[...javaTags.slice(4), ...sfTags].map((label) => <span className={sfTags.includes(label) ? "scene-tag scene-tag-salesforce" : "scene-tag scene-tag-java"} key={label}>{label}</span>)}</div>
-      </div>
-    </>
+    <Canvas dpr={mobile ? [1, 1.25] : [1, 1.5]} camera={{ position: [0, 0.3, 7.5], fov: 45 }} gl={{ antialias: !mobile, alpha: true }}>
+      <ambientLight intensity={0.7} />
+      <pointLight position={[4, 4, 5]} intensity={18} color={c.cyan} />
+      <pointLight position={[-4, -1, 3]} intensity={12} color={c.magenta} />
+      <Suspense fallback={null}>
+        <Rig mobile={mobile} />
+        <Environment><Lightformer intensity={2} position={[0, 5, 2]} scale={[8, 8, 1]} /></Environment>
+      </Suspense>
+    </Canvas>
   );
 }
