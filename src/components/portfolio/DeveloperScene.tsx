@@ -1,6 +1,6 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Float, Html, Lightformer, RoundedBox } from "@react-three/drei";
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 const c = { cyan: "#57e7f2", violet: "#9874ff", magenta: "#ec59cd", blue: "#4f8cff", dark: "#070912" };
@@ -23,8 +23,8 @@ function Rig({ mobile }: { mobile: boolean }) {
   const { pointer, viewport } = useThree();
   // Scene content spans ~9 x 5.5 world units; shrink it to always fit inside the box.
   const fit = Math.min(1, viewport.width / 11, viewport.height / 6.4);
-  const java = mobile ? javaTags.slice(0, 3) : javaTags;
-  const sf = mobile ? sfTags.slice(0, 2) : sfTags;
+  const java = mobile ? [] : javaTags;
+  const sf = mobile ? [] : sfTags;
   useFrame((state, raw) => {
     const dt = Math.min(raw, 0.05);
     if (group.current) {
@@ -85,17 +85,30 @@ function Rig({ mobile }: { mobile: boolean }) {
 }
 
 export function DeveloperScene() {
-  const mobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
+  const [mobile, setMobile] = useState(() => typeof window !== "undefined" && window.innerWidth < 768);
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const update = () => setMobile(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
   // Tags are also DOM overlays; keep them inside the canvas box.
   return (
-    <Canvas dpr={mobile ? [1, 1.25] : [1, 1.5]} camera={{ position: [0, 0.3, 7.5], fov: 45 }} gl={{ antialias: !mobile, alpha: true }}>
-      <ambientLight intensity={0.7} />
-      <pointLight position={[4, 4, 5]} intensity={18} color={c.cyan} />
-      <pointLight position={[-4, -1, 3]} intensity={12} color={c.magenta} />
-      <Suspense fallback={null}>
-        <Rig mobile={mobile} />
-        <Environment><Lightformer intensity={2} position={[0, 5, 2]} scale={[8, 8, 1]} /></Environment>
-      </Suspense>
-    </Canvas>
+    <>
+      <Canvas dpr={mobile ? [1, 1.25] : [1, 1.5]} camera={{ position: [0, 0.3, 7.5], fov: 45 }} gl={{ antialias: !mobile, alpha: true }}>
+        <ambientLight intensity={0.7} />
+        <pointLight position={[4, 4, 5]} intensity={18} color={c.cyan} />
+        <pointLight position={[-4, -1, 3]} intensity={12} color={c.magenta} />
+        <Suspense fallback={null}>
+          <Rig mobile={mobile} />
+          <Environment><Lightformer intensity={2} position={[0, 5, 2]} scale={[8, 8, 1]} /></Environment>
+        </Suspense>
+      </Canvas>
+      <div className="scene-mobile-skills" aria-label="Technologies shown in the scene">
+        <div>{javaTags.slice(0, 4).map((label) => <span className="scene-tag scene-tag-java" key={label}>{label}</span>)}</div>
+        <div>{[...javaTags.slice(4), ...sfTags].map((label) => <span className={sfTags.includes(label) ? "scene-tag scene-tag-salesforce" : "scene-tag scene-tag-java"} key={label}>{label}</span>)}</div>
+      </div>
+    </>
   );
 }
